@@ -1,0 +1,23 @@
+{
+  "name": "generate-favicons",
+  "version": "0.0.0",
+  "description": "Script that generates an exhaustive bundle with all the files and text needed for favicons.",
+  "homepage": "https://github.com/DanielGiljam/generate-favicons#readme",
+  "bugs": "https://github.com/DanielGiljam/generate-favicons/issues",
+  "license": "MIT",
+  "private": true,
+  "author": "Daniel Giljam (https://github.com/DanielGiljam)",
+  "bin": {
+    "generate-favicons": "bin/generate-favicons.js"
+  },
+  "repository": "github:DanielGiljam/generates-favicons",
+  "scripts": {
+    "test": "node test"
+  },
+  "dependencies": {
+    "sharp": "^0.25.2"
+  },
+  "engines": {
+    "node": "^12.9.0"
+  }
+}
