@@ -151,31 +151,40 @@ async function generateFavicons() {
     .replace("${wssTooltip}", msapplicationTooltip || msapplicationName);
 
   return Promise.allSettled([
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(192)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-192.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(180)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-180.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(152)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-152.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(144)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-144.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(128)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-128.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(120)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-120.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(96)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-96.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(76)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-76.png")),
-    favicon192.clone
+    favicon192
+      .clone()
       .resize(57)
       .toFile(path.resolve(iconsDirectoryPath, "favicon-57.png")),
     favicon32
@@ -189,13 +198,16 @@ async function generateFavicons() {
       .toFile(
         path.resolve(iconsDirectoryPath, "apple-touch-icon-precomposed-180.png")
       ),
-    msapplicationLargetile.clone
+    msapplicationLargetile
+      .clone()
       .resize(558)
       .toFile(path.resolve(iconsDirectoryPath, "msapplication/largetile.png")),
-    msapplicationLargetile.clone
+    msapplicationLargetile
+      .clone()
       .resize(270)
       .toFile(path.resolve(iconsDirectoryPath, "msapplication/mediumtile.png")),
-    msapplicationLargetile.clone
+    msapplicationLargetile
+      .clone()
       .resize(128)
       .toFile(path.resolve(iconsDirectoryPath, "msapplication/smalltile.png")),
     msapplicationWidetile
@@ -216,10 +228,10 @@ async function generateFavicons() {
 generateFavicons()
   .then(results => {
     results.forEach(result => {
-      result.status === "fulfilled"
-        ? console.log("info:", result.value)
-        : console.error(result.reason.message);
+      if (result.status === "rejected") console.error(result.reason.message);
     });
+    console.log("Done.");
+    process.exit(0);
   })
   .catch(error => {
     console.error(error.stack);
