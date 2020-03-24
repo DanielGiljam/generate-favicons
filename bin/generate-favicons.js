@@ -30,6 +30,50 @@ const specificQuestion = async (specificQuestion, regex) => {
   return answer;
 };
 
+const verifyDirPath = async dirPath => {
+  const absolutePath = path.resolve(process.env.PWD, dirPath);
+  try {
+    await fs.promises.access(absolutePath);
+    if (!(await fs.promises.stat(absolutePath)).isDirectory)
+      throw new Error("Not a directory");
+    if ((await fs.promises.readdir(absolutePath)).length)
+      throw new Error("Not an empty directory");
+    return true;
+  } catch (error) {
+    console.error(error.message);
+    return false;
+  }
+};
+
+const dirPathQuestion = async dirPathQuestion => {
+  let answer;
+  do {
+    answer = await question(dirPathQuestion);
+  } while (!(await verifyDirPath(answer)));
+  return answer;
+};
+
+const verifyFilePath = async filePath => {
+  const absolutePath = path.resolve(process.env.PWD, filePath);
+  try {
+    await fs.promises.access(absolutePath);
+    if (!(await fs.promises.stat(absolutePath)).isFile)
+      throw new Error("Not a file");
+    return true;
+  } catch (error) {
+    console.error(error.message);
+    return false;
+  }
+};
+
+const filePathQuestion = async filePathQuestion => {
+  let answer;
+  do {
+    answer = await question(filePathQuestion);
+  } while (!(await verifyFilePath(answer)));
+  return answer;
+};
+
 async function generateFavicons() {
   console.log(
     "GENERATE FAVICONS\n\n" +
@@ -39,72 +83,43 @@ async function generateFavicons() {
       "file format is explicitly asked for.\n"
   );
 
-  const outputDirectoryPath = path.resolve(
-    process.env.PWD,
-    await question("Specify output directory: ")
+  const outputDirectoryPath = await dirPathQuestion(
+    "Specify output directory: "
   );
 
   const iconsDirectoryName = `icons-${crypto.randomBytes(10).toString("hex")}`;
-
-  console.log(
-    `Following files/directories will be created at ${outputDirectoryPath}:\n\n` +
-      `  head.html\n` +
-      `  ${iconsDirectoryName}/\n`
-  );
-
-  const proceed = /^(?:yes)?$/.test(
-    await specificQuestion("Do you want to proceed? (yes) ", /^(?:yes|no)?$/i)
-  );
-
-  if (!proceed) process.exit(0);
-
   const iconsDirectoryPath = path.resolve(
     outputDirectoryPath,
     iconsDirectoryName
   );
 
-  await fs.promises.mkdir(iconsDirectoryPath, { recursive: true });
-  await fs.promises.mkdir(path.resolve(iconsDirectoryPath, "msapplication"));
-
   const favicon192 = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to 192x192 favicon: ")
-    )
+    await filePathQuestion("Specify path to 192x192 favicon: ")
   );
 
   const favicon32 = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to 32x32 favicon: ")
-    )
+    await filePathQuestion("Specify path to 32x32 favicon: ")
   );
 
   const favicon16 = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to 16x16 favicon: ")
-    )
+    await filePathQuestion("Specify path to 16x16 favicon: ")
   );
 
   appleTouchIconPrecomposed = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to precomposed 180x180 Apple touch icon: ")
+    await filePathQuestion(
+      "Specify path to precomposed 180x180 Apple touch icon: "
     )
   );
 
   const msapplicationLargetile = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to 558x558 Windows Start Screen tile: ")
+    await filePathQuestion(
+      "Specify path to 558x558 Windows Start Screen tile: "
     )
   );
 
   const msapplicationWidetile = sharp(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to 558x270 wide Windows Start Screen tile: ")
+    await filePathQuestion(
+      "Specify path to 558x270 wide Windows Start Screen tile: "
     )
   );
 
@@ -122,10 +137,7 @@ async function generateFavicons() {
   );
 
   const iconMask = await fs.promises.readFile(
-    path.resolve(
-      process.env.PWD,
-      await question("Specify path to SVG vector mask of the favicon: ")
-    ),
+    await filePathQuestion("Specify path to SVG vector mask of the favicon: "),
     "utf-8"
   );
 
@@ -150,6 +162,8 @@ async function generateFavicons() {
     .replace("${wssAppName}", msapplicationName)
     .replace("${wssTooltip}", msapplicationTooltip || msapplicationName);
 
+  await fs.promises.mkdir(iconsDirectoryPath, { recursive: true });
+  await fs.promises.mkdir(path.resolve(iconsDirectoryPath, "msapplication"));
   return Promise.allSettled([
     favicon192
       .clone()
